@@ -47,26 +47,26 @@ class SNLIntentHandler(AbstractRequestHandler):
 
         return ask_utils.is_intent_name("SNLIntent")(handler_input)
         
-    def retrieve_data(url):
+    def retrieve_data(self, url):
         try:
             response = requests.get(url)
             response.raise_for_status()  # Raise an exception if the request was unsuccessful
             data = response.json()
             return data
         except requests.exceptions.RequestException as e:
-            print(f"An error occurred: {e}")
+            logger.error(f"An error occurred: {e}")
             return None
     
     def handle(self, handler_input):
-        show_metadata = retrieve_data("https://api.tvmaze.com/shows/361")
-        episode_metadata = retrieve_data(show_metadata["_links"]["nextepisode"]["href"])
+        show_metadata = self.retrieve_data("https://api.tvmaze.com/shows/361")
+        episode_metadata = self.retrieve_data(show_metadata["_links"]["nextepisode"]["href"])
         
         # Is there a new episode of SNL today?
         if episode_metadata["airdate"] == str(datetime.date.today()):
-            speak_output("Yes, it is with " + episode_metadata["name"].replace('/', 'and') + ".")
+            speak_output = "Yes, it is with " + episode_metadata["name"].replace('/', 'and') + "."
         else:
             next_episode_airdate = dt.strptime(episode_metadata["airdate"], "%Y-%m-%d").strftime("%B %d, %Y")
-            speak_output("No, the next episode of Saturday Night Live is on " + next_episode_airdate + ".")
+            speak_output = "No, the next new episode of Saturday Night Live is on " + next_episode_airdate + "."
 
         return (handler_input.response_builder
                 .speak(speak_output)
