@@ -63,7 +63,7 @@ class SNLIntentHandler(AbstractRequestHandler):
         
         # Is there a new episode of SNL today?
         if episode_metadata["airdate"] == str(datetime.date.today()):
-            speak_output = "Yes, it is with " + episode_metadata["name"].replace('/', 'and') + "."
+            speak_output = "Yes, it is with " + episode_metadata["name"].replace('/', ' and ') + "."
         else:
             next_episode_airdate = dt.strptime(episode_metadata["airdate"], "%Y-%m-%d").strftime("%B %d, %Y")
             speak_output = "No, the next new episode of Saturday Night Live is on " + next_episode_airdate + "."
