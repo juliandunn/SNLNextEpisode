@@ -1,4 +1,5 @@
 import unittest
+import datetime
 from unittest.mock import MagicMock, patch
 from src.lambda_function import SNLIntentHandler
 
@@ -9,8 +10,13 @@ class TestSNLIntentHandler(unittest.TestCase):
         self.handler_input.response_builder.speak.return_value = self.handler_input.response_builder
         self.handler_input.response_builder.ask.return_value = self.handler_input.response_builder
 
+    @patch('src.lambda_function.datetime')
     @patch('src.lambda_function.requests.get')
-    def test_handle_with_new_episode_today(self, mock_get):
+    def test_handle_with_new_episode_today(self, mock_get, mock_datetime):
+        # Mock today's date to match the episode airdate
+        mock_datetime.date.today.return_value = datetime.date(2025, 9, 27)
+        mock_datetime.date.side_effect = datetime.date # Allow datetime.date(y, m, d) to work
+        
         # Mock the API responses
         mock_show_response = MagicMock()
         mock_show_response.json.return_value = {
@@ -33,8 +39,13 @@ class TestSNLIntentHandler(unittest.TestCase):
         # Assert the response is as expected
         self.handler_input.response_builder.speak.assert_called_with("Yes, it is with Host and Musical Guest.")
 
+    @patch('src.lambda_function.datetime')
     @patch('src.lambda_function.requests.get')
-    def test_handle_with_no_new_episode_today(self, mock_get):
+    def test_handle_with_no_new_episode_today(self, mock_get, mock_datetime):
+        # Mock today's date to be different from the episode airdate
+        mock_datetime.date.today.return_value = datetime.date(2025, 9, 27)
+        mock_datetime.date.side_effect = datetime.date # Allow datetime.date(y, m, d) to work
+        
         # Mock the API responses
         mock_show_response = MagicMock()
         mock_show_response.json.return_value = {
